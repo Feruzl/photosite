@@ -1,55 +1,97 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Exposition 2025 — Feruzl</title>
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exposition 2025 — Feruzl</title>
+    
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <header>
-    <nav>
-      <a href="index.html" class="logo">feruzl_</a>
-      <a href="2024.html">2024</a>
-      <a href="2025.html" class="active">2025</a>
-      <a href="about.html">à propos</a>
-    </nav>
-  </header>
+    <header>
+        <nav>
+            <a href="index.html" class="logo">Feruzl</a>
+            <a href="2024.html">2024</a>
+            <a href="2025.html" class="active">2025</a>
+            <a href="about.html">à propos</a>
+        </nav>
+    </header>
 
-  <main class="expo">
+    <main class="expo">
 
-    <!-- SALLE 1 -->
-    <section class="salle active">
-      <div class="mur">
-        <img src="images/photo1.jpg" alt="Photo 1">
-        <img src="images/photo2.jpg" alt="Photo 2">
-        <img src="images/photo3.jpg" alt="Photo 3">
-      </div>
-      <div class="mur">
-        <img src="images/photo4.jpg" alt="Photo 4">
-        <img src="images/photo5.jpg" alt="Photo 5">
-      </div>
-    </section>
+        <section class="salle">
+            
+            <div class="mur">
+                <p class="legende" 
+                    style="grid-column: 2 / span 3; grid-row: 4 / span 1;">
+                    PROJET - Noir et Blanc
+                </p> 
 
-    <!-- SALLE 2 -->
-    <section class="salle">
-      <div class="mur">
-        <img src="images/photo6.jpg" alt="Photo 6">
-        <img src="images/photo7.jpg" alt="Photo 7">
-      </div>
-      <div class="mur">
-        <img src="images/photo8.jpg" alt="Photo 8">
-        <img src="images/photo9.jpg" alt="Photo 9">
-      </div>
-    </section>
+                <img src="images/photo1.jpg" alt="Photo 1" 
+                    style="grid-column: 2 / span 4; grid-row: 8 / span 12; width: 30vw;"> 
+                
+                <p class="legende" 
+                    style="grid-column: 2 / span 4; grid-row: 15 / span 12; font-style: italic;">
+                    "L'envol"
+                </p>
+                <img src="images/photo2.jpg" alt="Photo 2" 
+                    style="grid-column: 8 / span 3; grid-row: 7 / span 4; width: 15vw;">
 
-  </main>
+                <p class="legende" 
+                    style="grid-column: 8 / span 3; grid-row: 15 / span 4; font-style: italic;">
+                    "Cheminée"
+                </p>
+            </div>
+            
+            <div class="mur">
+                
+                <img src="images/photo3.jpg" alt="Photo 3" 
+                    style="grid-column: 9 / span 3; grid-row: 4 / span 6; width: 20vw; height: 35vh;"> 
+                
+                <img src="images/photo5.jpg" alt="Photo 5" 
+                    style="grid-column: 7 / span 2; grid-row: 6 / span 2; width: 10vw; height: 10vw;"> 
+                
+                <img src="images/photo4.jpg" alt="Photo 4" 
+                    style="grid-column: 1 / span 7; grid-row: 8 / span 6; width: 45vw; height: 30vh;">
+            </div>
+        </section>
 
-  <div class="fleches">
-    <button id="gauche">←</button>
-    <button id="droite">→</button>
-  </div>
+        <section class="salle">
+            
+            <div class="mur">
+                <p class="legende" 
+                    style="grid-column: 8 / span 4; grid-row: 4 / span 2; font-weight: 600;">
+                    SÉRIE BETA. Réflexions sur l'architecture et l'oubli.
+                </p>
+                
+                <img src="images/photo6.jpg" alt="Photo 6" 
+                    style="grid-column: 3 / span 3; grid-row: 6 / span 8; width: 20vw; height: 45vh;"> 
+                
+                <img src="images/photo7.jpg" alt="Photo 7" 
+                    style="grid-column: 8 / span 4; grid-row: 10 / span 4; width: 30vw; height: 20vh;">
+            </div>
+            
+            <div class="mur">
+                <p class="legende" 
+                    style="grid-column: 1 / span 3; grid-row: 5 / span 1; font-weight: 600;">
+                    FIN. CONTACT.
+                </p>
+                
+                <img src="images/photo8.jpg" alt="Photo 8" 
+                    style="grid-column: 9 / span 3; grid-row: 4 / span 5; width: 20vw; height: 20vh;"> 
+                
+                <img src="images/photo9.jpg" alt="Photo 9" 
+                    style="grid-column: 4 / span 6; grid-row: 6 / span 10; width: 40vw; height: 60vh;">
+            </div>
+        </section>
 
-  <script src="script.js"></script>
+    </main>
+
+    <div class="fleches">
+        <button id="gauche">←</button>
+        <button id="droite">→</button>
+    </div>
+
+    <script src="script.js"></script>
 </body>
 </html>

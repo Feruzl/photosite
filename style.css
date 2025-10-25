@@ -1,153 +1,200 @@
 /* =============== RESET =============== */
 * {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
 
+/* ---------------------------------------------------- */
+/* AJUSTEMENT CLÉ : @font-face pour la police locale (BrittanySignature.ttf) */
+@font-face {
+    font-family: 'Brittany'; 
+    src: url('./BrittanySignature.ttf') format('truetype'); 
+    font-weight: normal; 
+    font-style: normal;
+}
+/* ---------------------------------------------------- */
+
+
 body {
-  font-family: "Inter", sans-serif;
-  background-color: #f9f8f5;
-  color: #111;
-  overflow-x: hidden;
+    /* Police Primaire: Inter */
+    font-family: "Inter", sans-serif;
+    /* Couleur du Fond Principal (Blanc Cassé: #F9F8F5) */
+    background-color: #f9f8f5;
+    /* Couleur du Texte Principal (Noir Profond: #111111) */
+    color: #111111;
+    --header-height: 6rem; 
+    
+    height: 100vh;
+    scroll-snap-type: none;
+    overflow-y: hidden;
+    overflow-x: hidden;
 }
 
 /* =============== NAVIGATION =============== */
+header {
+    position: fixed;
+    width: 100%;
+    z-index: 10;
+    background-color: #f9f8f5; 
+    height: var(--header-height);
+}
+
 nav {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 2rem;
-  padding: 1rem;
-  font-size: 0.9rem;
-  letter-spacing: 1px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 2rem;
+    font-size: 0.9rem; 
+    padding: 1rem; 
+    letter-spacing: 1px;
+    height: 100%;
 }
 
 nav a {
-  text-decoration: none;
-  color: #111;
-  opacity: 0.6;
-  transition: opacity 0.3s;
+    text-decoration: none;
+    color: #111;
+    opacity: 0.6;
+    transition: opacity 0.3s;
+    font-weight: 400; 
 }
 
 nav a:hover,
 nav a.active {
-  opacity: 1;
+    opacity: 1;
 }
 
+/* Styles du Logo */
 .logo {
-  font-weight: 600;
+    /* Application de la police importée */
+    font-family: 'Brittany', cursive; 
+    font-weight: 300; 
+    font-size: 1.0rem; 
 }
 
-/* =============== PAGE D'ACCUEIL =============== */
-.home {
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-  gap: 1rem;
+/* =============== PAGE D'ACCUEIL / ABOUT =============== */
+.home, .about {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    gap: 1rem;
+    width: 100vw;
 }
 
 .enter-button {
-  margin-top: 1.5rem;
-  padding: 0.5rem 1.2rem;
-  border: 1px solid #111;
-  text-decoration: none;
-  color: #111;
-  font-size: 0.9rem;
-  border-radius: 2rem;
-  transition: background 0.3s, color 0.3s;
+    margin-top: 1.5rem;
+    padding: 0.5rem 1.2rem;
+    border: 1px solid #111;
+    text-decoration: none;
+    color: #111;
+    font-size: 0.9rem;
+    border-radius: 2rem;
+    transition: background 0.6s, color 0.6s;
 }
 
 .enter-button:hover {
-  background: #111;
-  color: #f9f8f5;
+    background: #111;
+    color: #f9f8f5;
 }
 
-/* =============== EXPO 2025 =============== */
+
+/* =============== EXPOSITION IMMERSIVE (NAVIGATION HORIZONTALE) =============== */
 .expo {
-  position: relative;
-  width: 100vw;
-  height: 100vh;
-  overflow: hidden;
+    display: flex;
+    position: relative;
+    width: 100%; 
+    height: 100vh; 
+    transition: transform 0.6s ease-in-out; 
 }
 
-/* Salle : prend tout l’écran, images scrollables verticalement */
+/* Salle & Mur */
 .salle {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2rem;
-  padding: 2rem 0;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.5s ease;
+    flex-shrink: 0; 
+    width: 100vw;
+    height: 100vh;
+    padding-top: calc(var(--header-height) + 1.5rem); 
+    padding-left: 5vw; 
+    padding-right: 5vw; 
+    padding-bottom: 0;
+    position: relative; 
+    scroll-snap-type: y mandatory;
+    overflow-y: scroll; 
+    overflow-x: hidden;
 }
 
-.salle.active {
-  opacity: 1;
-  pointer-events: all;
-}
-
-/* Mur : images empilées verticalement */
 .mur {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  align-items: center;
-  width: 100%;
+    height: calc(100vh - var(--header-height) - 1.5rem); 
+    width: 90vw; 
+    margin: 0 auto;
+    
+    scroll-snap-align: start;
+    
+    /* Configuration Grid */
+    display: grid;
+    grid-template-columns: repeat(12, 1fr); 
+    grid-template-rows: repeat(16, 1fr); 
+    
+    grid-auto-flow: dense; 
+    
+    /* Aération (grid-gap) 3vw/3vh */
+    grid-gap: 3vw 3vh; 
+    
+    align-content: center; 
+    justify-content: center; 
+    
+    overflow: hidden; 
 }
 
+/* Photo : styles de base */
 .mur img {
-  max-width: 90%;
-  height: auto;
-  object-fit: contain;
-  border-radius: 10px;
-  box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+    object-fit: contain; 
+    border-radius: 0px;
+    transition: transform 0.3s ease-out;
+    z-index: 1;
 }
+
+.mur img:hover {
+    transform: scale(1.02); 
+}
+
+/* Style de base pour les blocs de texte/légendes */
+.legende {
+    font-family: "Inter", sans-serif;
+    font-size: 0.8rem; 
+    line-height: 1.3;
+    color: #555555; 
+    margin: 0;
+    padding: 0;
+    z-index: 2;
+}
+
 
 /* Flèches gauche/droite */
 .fleches {
-  position: fixed;
-  top: 50%;
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
-  padding: 0 2rem;
-  transform: translateY(-50%);
-  pointer-events: none;
+    position: fixed;
+    top: 50%;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    padding: 0 2rem;
+    transform: translateY(-50%);
+    pointer-events: none;
 }
 
 .fleches button {
-  background: none;
-  border: none;
-  font-size: 2rem;
-  color: #111;
-  opacity: 0.4;
-  cursor: pointer;
-  pointer-events: all;
-  transition: opacity 0.3s;
+    background: none;
+    border: none;
+    font-size: 2rem;
+    color: #111;
+    opacity: 0.4;
+    cursor: pointer;
+    pointer-events: all;
+    transition: opacity 0.3s;
 }
 
 .fleches button:hover {
-  opacity: 1;
-}
-
-/* =============== ABOUT =============== */
-.about {
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-  gap: 1rem;
+    opacity: 1;
 }

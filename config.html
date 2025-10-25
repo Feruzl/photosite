@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configuration de l'Exposition - Feruzl</title>
+    <style>
+        /* Styles de base */
+        body { 
+            font-family: sans-serif; 
+            margin: 0; 
+            padding: 0; 
+            background-color: #f0f0f0;
+            overflow-x: hidden;
+            --header-height: 4rem; /* Hauteur pour l'outil */
+            --grid-rows: 16;
+            --grid-cols: 12;
+        }
+
+        /* Panneau de contrôle (Header) */
+        #controls {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: var(--header-height);
+            background: #111;
+            color: white;
+            padding: 0 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            z-index: 1000;
+        }
+        #controls button, #controls select {
+            padding: 5px 10px;
+            margin: 0 5px;
+            cursor: pointer;
+        }
+
+        /* Conteneur des Murs (Similaire à .expo) */
+        #mur-container {
+            padding-top: var(--header-height);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Mur (Similaire à .salle/mur combiné dans un but de configuration) */
+        .mur-config {
+            position: relative;
+            width: 90vw; /* 90% de la largeur du viewport */
+            height: 90vh; /* Hauteur de 90% pour avoir un espace de travail confortable */
+            margin: 20px auto;
+            background: #fff;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border: 1px solid #ddd;
+
+            /* Affichage visuel de la grille (OPTIONNEL mais UTILE) */
+            background-image: linear-gradient(to right, lightgrey 1px, transparent 1px),
+                              linear-gradient(to bottom, lightgrey 1px, transparent 1px);
+            background-size: calc(90vw / var(--grid-cols)) calc(90vh / var(--grid-rows));
+        }
+
+        /* Styles des éléments positionnés (Images et Textes) */
+        .img-wrapper, .text-block {
+            position: absolute;
+            cursor: grab;
+            border: 1px dashed red; /* Visuel pour le drag */
+            transition: none !important;
+            box-sizing: border-box;
+            z-index: 10;
+        }
+
+        .img-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* Assure que l'image remplit le wrapper */
+            pointer-events: none; /* Permet de drag le wrapper facilement */
+        }
+        
+        .text-block {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 5px;
+            font-size: 1rem;
+            overflow: hidden;
+            pointer-events: auto; /* Permet d'éditer le texte */
+        }
+
+        /* Poignée de redimensionnement */
+        .resizer {
+            position: absolute;
+            width: 15px;
+            height: 15px;
+            right: -7px;
+            bottom: -7px;
+            background: #111;
+            cursor: nwse-resize;
+            border-radius: 50%;
+            z-index: 15;
+            pointer-events: auto;
+        }
+
+        /* Zone d'information du code */
+        #info-box {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #111;
+            color: #f9f8f5;
+            padding: 15px;
+            border-radius: 5px;
+            z-index: 1000;
+            max-width: 500px;
+            font-size: 0.8rem;
+            line-height: 1.4;
+        }
+        #info-box h2 { font-size: 1rem; margin-bottom: 5px; }
+        #info-box pre {
+            background: #333;
+            padding: 10px;
+            border-radius: 3px;
+            margin-top: 5px;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            word-break: break-all;
+            cursor: copy;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="controls">
+        <label for="image-select">Nouvelle Image :</label>
+        <select id="image-select">
+            <option value="images/photo1.jpg">Photo 1 (Portrait)</option>
+            <option value="images/photo4.jpg">Photo 4 (Paysage)</option>
+            <option value="images/photo9.jpg">Photo 9 (Carré)</option>
+            <option value="images/default.jpg">Ajouter URL/Nom...</option>
+        </select>
+
+        <label for="size-select">Taille :</label>
+        <select id="size-select">
+            <option value="20vw|25vh">Petit</option>
+            <option value="35vw|45vh">Moyen</option>
+            <option value="50vw|65vh">Grand</option>
+        </select>
+        
+        <button onclick="ajouterImage()">Ajouter Image</button>
+        <button onclick="ajouterTexte()">Ajouter Texte</button>
+    </div>
+
+    <div id="mur-container">
+        <div id="mur-1" class="mur-config" data-mur-index="1">
+            </div>
+        
+        <button id="add-mur" style="margin: 20px 0; font-size: 1.5rem; padding: 10px 20px;" onclick="ajouterMur()">+ Ajouter un nouveau mur</button>
+    </div>
+
+    <div id="info-box">
+        <h2>Code Généré</h2>
+        <p>Cliquez et glissez. Relâchez pour obtenir le code HTML pour votre fichier 2025.html.</p>
+        <pre id="code-output"></pre>
+    </div>
+
+    <script>
+const CONTAINER = document.getElementById('mur-container');
+const CODE_OUTPUT = document.getElementById('code-output');
+const GRID_ROWS = 16;
+const GRID_COLS = 12;
+
+let murIndex = 1;
+let elementGlisse = null;
+let elementRedimensionne = null;
+let decalageX, decalageY;
+let currentMur = null; // Le mur actuellement survolé
+let initialMouseDownX, initialMouseDownY;
+
+// --- GESTION DES MURS ---
+
+function ajouterMur() {
+    murIndex++;
+    const newMur = document.createElement('div');
+    newMur.id = `mur-${murIndex}`;
+    newMur.className = 'mur-config';
+    newMur.setAttribute('data-mur-index', murIndex);
+    
+    // Insère le nouveau mur juste avant le bouton +
+    CONTAINER.insertBefore(newMur, document.getElementById('add-mur'));
+    
+    console.log(`Mur ${murIndex} ajouté. Prêt à positionner des éléments.`);
+}
+
+// --- GESTION DES ÉLÉMENTS (Images et Texte) ---
+
+function ajouterImage() {
+    const select = document.getElementById('image-select');
+    const imageSrc = select.value;
+    const size = document.getElementById('size-select').value.split('|');
+    const width = size[0];
+    const height = size[1];
+
+    if (!imageSrc || !currentMur) return alert('Sélectionnez une image et cliquez sur un mur en premier !');
+
+    const wrapper = document.createElement('div');
+    wrapper.className = 'img-wrapper';
+    wrapper.id = 'element-' + Date.now();
+    
+    // Applique les tailles choisies
+    wrapper.style.width = width;
+    wrapper.style.height = height;
+    
+    // Position initiale au centre du mur
+    wrapper.style.left = '50%';
+    wrapper.style.top = '50%';
+    wrapper.style.transform = 'translate(-50%, -50%)';
+
+    const img = document.createElement('img');
+    img.src = imageSrc;
+    img.alt = `Photo ${murIndex}-${currentMur.children.length + 1}`;
+    
+    const resizer = document.createElement('div');
+    resizer.className = 'resizer';
+
+    wrapper.appendChild(img);
+    wrapper.appendChild(resizer);
+    currentMur.appendChild(wrapper);
+
+    // Initialisation du Drag/Resize sur le nouvel élément
+    initialiserElement(wrapper);
+}
+
+function ajouterTexte() {
+    if (!currentMur) return alert('Cliquez sur un mur pour ajouter un bloc de texte !');
+
+    const textBlock = document.createElement('div');
+    textBlock.className = 'text-block';
+    textBlock.id = 'element-' + Date.now();
+    textBlock.contentEditable = true;
+    textBlock.innerHTML = 'Double-cliquez pour éditer la légende...';
+
+    // Tailles initiales pour un bloc de texte
+    textBlock.style.width = '20vw';
+    textBlock.style.height = 'auto'; 
+    textBlock.style.padding = '10px';
+    
+    // Position initiale au centre du mur
+    textBlock.style.left = '50%';
+    textBlock.style.top = '50%';
+    textBlock.style.transform = 'translate(-50%, -50%)';
+
+    const resizer = document.createElement('div');
+    resizer.className = 'resizer';
+    textBlock.appendChild(resizer);
+
+    currentMur.appendChild(textBlock);
+
+    // Initialisation du Drag/Resize sur le nouvel élément
+    initialiserElement(textBlock);
+}
+
+// --- LOGIQUE DRAG & RESIZE ---
+
+function initialiserElement(element) {
+    const resizer = element.querySelector('.resizer');
+
+    // Drag (sur l'élément lui-même)
+    element.addEventListener('mousedown', (e) => {
+        // Ignorer si on clique sur le resizer
+        if (e.target.classList.contains('resizer')) return;
+
+        e.preventDefault(); 
+        elementGlisse = element;
+        elementGlisse.style.zIndex = 101; 
+        elementGlisse.style.cursor = 'grabbing';
+        
+        // Supprimer la transformation pour avoir des coordonnées nettes
+        elementGlisse.style.transform = 'none';
+
+        const rect = elementGlisse.getBoundingClientRect();
+        decalageX = e.clientX - rect.left;
+        decalageY = e.clientY - rect.top;
+        initialMouseDownX = e.clientX;
+        initialMouseDownY = e.clientY;
+        
+        mettreAJourInfos(elementGlisse);
+    });
+    
+    // Resize (sur le resizer)
+    resizer.addEventListener('mousedown', (e) => {
+        e.stopPropagation(); 
+        e.preventDefault();
+        elementRedimensionne = element;
+        elementRedimensionne.style.zIndex = 101;
+        elementRedimensionne.style.cursor = 'nwse-resize';
+
+        // Supprimer la transformation avant de redimensionner
+        elementRedimensionne.style.transform = 'none';
+    });
+}
+
+// --- ÉCOUTEURS GLOBAUX ---
+
+// Détection du mur survolé pour l'ajout d'éléments
+document.addEventListener('mouseover', (e) => {
+    if (e.target.classList.contains('mur-config')) {
+        currentMur = e.target;
+    }
+});
+
+document.addEventListener('mousemove', (e) => {
+    // 1. Logique de redimensionnement
+    if (elementRedimensionne) {
+        const murRect = elementRedimensionne.parentElement.getBoundingClientRect();
+        const elementRect = elementRedimensionne.getBoundingClientRect();
+        
+        // Calculer la nouvelle taille basée sur la position de la souris
+        const newWidth = e.clientX - elementRect.left;
+        const newHeight = e.clientY - elementRect.top;
+
+        elementRedimensionne.style.width = newWidth + 'px';
+        elementRedimensionne.style.height = newHeight + 'px';
+        
+        mettreAJourInfos(elementRedimensionne);
+        return;
+    }
+
+    // 2. Logique de déplacement
+    if (!elementGlisse) return;
+
+    const murRect = elementGlisse.parentElement.getBoundingClientRect();
+    
+    // Positionnement relatif au .mur
+    let nouvelleX = e.clientX - decalageX;
+    let nouvelleY = e.clientY - decalageY;
+
+    // Définir la position LEFT/TOP
+    elementGlisse.style.left = (nouvelleX - murRect.left) + 'px';
+    elementGlisse.style.top = (nouvelleY - murRect.top) + 'px';
+    
+    mettreAJourInfos(elementGlisse);
+});
+
+document.addEventListener('mouseup', () => {
+    if (elementGlisse) {
+        elementGlisse.style.zIndex = 10; 
+        elementGlisse.style.cursor = 'grab';
+        // Afficher le code final
+        mettreAJourInfos(elementGlisse, true);
+    }
+    if (elementRedimensionne) {
+        elementRedimensionne.style.zIndex = 10;
+        // Afficher le code final
+        mettreAJourInfos(elementRedimensionne, true);
+    }
+    elementGlisse = null;
+    elementRedimensionne = null;
+});
+
+// --- GÉNÉRATION DU CODE FINAL ---
+
+function mettreAJourInfos(element, final = false) {
+    const mur = element.parentElement;
+    const murIndex = mur.getAttribute('data-mur-index');
+    const elementRect = element.getBoundingClientRect();
+    const murRect = mur.getBoundingClientRect();
+    
+    // 1. Calculs de la Grille (Basé sur 12x16)
+    const grilleLargeur = murRect.width / GRID_COLS;
+    const grilleHauteur = murRect.height / GRID_ROWS;
+    
+    // Coordonnées de départ (1 = ligne/colonne 1)
+    const colEstimee = Math.max(1, Math.round((elementRect.left - murRect.left) / grilleLargeur) + 1);
+    const rowEstimee = Math.max(1, Math.round((elementRect.top - murRect.top) / grilleHauteur) + 1);
+
+    // Portée (span)
+    const colSpan = Math.max(1, Math.round(elementRect.width / grilleLargeur));
+    const rowSpan = Math.max(1, Math.round(elementRect.height / grilleHauteur));
+    
+    // 2. Calculs de la Taille Finale (en VW/VH pour le HTML de l'expo)
+    // IMPORTANT: On utilise la taille par rapport au viewport (VW/VH) et non au mur (%).
+    const vhRatio = document.documentElement.clientHeight / 100;
+    const vwRatio = document.documentElement.clientWidth / 100;
+
+    const finalWidthVW = (elementRect.width / vwRatio).toFixed(1) + 'vw';
+    const finalHeightVH = (elementRect.height / vhRatio).toFixed(1) + 'vh'; 
+
+    const styleGrid = `grid-column: ${colEstimee} / span ${colSpan}; grid-row: ${rowEstimee} / span ${rowSpan};`;
+    
+    let styleTaille = element.classList.contains('img-wrapper') ? `width: ${finalWidthVW}; height: ${finalHeightVH};` : '';
+
+    let contenu = `Mise à jour en temps réel. Élément sur Mur ${murIndex}`;
+
+    if (final) {
+        if (element.classList.contains('img-wrapper')) {
+            const code = `
+                <img src="${element.querySelector('img').src}" alt="${element.querySelector('img').alt}"
+                    style="${styleGrid} ${styleTaille}">
+            `;
+            contenu = `
+                <h2>Code HTML pour Mur ${murIndex}</h2>
+                <p><strong>POUR L'IMAGE ${element.querySelector('img').alt || ''} :</strong></p>
+                <pre>${code.trim()}</pre>
+                <p>Copiez ce bloc dans le div class="mur" de votre fichier 2025.html.</p>
+            `;
+        } else if (element.classList.contains('text-block')) {
+            const code = `
+                <p class="legende" style="${styleGrid} width: ${finalWidthVW};">
+                    ${element.innerText.trim()}
+                </p>
+            `;
+            contenu = `
+                <h2>Code HTML pour Mur ${murIndex}</h2>
+                <p><strong>POUR LE BLOC DE TEXTE :</strong></p>
+                <pre>${code.trim()}</pre>
+                <p>Copiez ce bloc dans le div class="mur" de votre fichier 2025.html.</p>
+            `;
+        }
+        
+        CODE_OUTPUT.innerHTML = contenu;
+    } else {
+         CODE_OUTPUT.innerText = `Mur ${murIndex}\nCol: ${colEstimee}, Row: ${rowEstimee}\nSpan: ${colSpan}x${rowSpan}\nSize: ${finalWidthVW} x ${finalHeightVH}`;
+    }
+}
+
+// Initialiser le premier mur au chargement
+document.addEventListener('DOMContentLoaded', () => {
+    // Le premier mur existe déjà dans le HTML
+    currentMur = document.getElementById('mur-1');
+    // S'assurer que les murs préexistants sont initialisés
+    document.querySelectorAll('.mur-config').forEach(m => {
+        m.querySelectorAll('.img-wrapper, .text-block').forEach(initialiserElement);
+    });
+});
+    </script>
+</body>
+</html>
