@@ -1,312 +1,478 @@
 /* =============== RESET =============== */
 html, body {
-    margin: 0;
-    padding: 0;
-    height: 100%; /* S'assure que le body prend toute la hauteur de la fenêtre */
-    width: 100%;
-    /* 💥 NOUVEAU: Empêche le navigateur d'ajouter de la marge/bordure sur la fenêtre entière */
-    overflow: hidden; 
+ margin: 0;
+ padding: 0;
+ height: 100%;
+ width: 100%;
+ overflow: hidden; 
 }
 * {
-    box-sizing: border-box;
+ box-sizing: border-box;
 }
 
 /* ---------------------------------------------------- */
 /* AJUSTEMENT CLÉ : @font-face pour la police locale (BrittanySignature.ttf) */
 @font-face {
-    font-family: 'Brittany'; 
-    src: url('./BrittanySignature.ttf') format('truetype'); 
-    font-weight: normal; 
-    font-style: normal;
+ font-family: 'Brittany'; 
+ src: url('./BrittanySignature.ttf') format('truetype'); 
+ font-weight: normal; 
+ font-style: normal;
 }
 /* ---------------------------------------------------- */
 
 
 body {
-    /* Police Primaire: Inter */
-    font-family: "Inter", sans-serif;
-    /* Couleur du Fond Principal (Blanc Cassé: #F9F8F5) */
-    background-color: #f9f8f5;
-    /* Couleur du Texte Principal (Noir Profond: #111111) */
-    color: #111111;
-    /* Hauteur contrainte de l'en-tête (4.5rem = 72px) */
-    --header-height: 4.5rem; 
-    
-    /* Retire height: 100vh pour utiliser la hauteur du html/body */
-    height: 100%;
-    scroll-snap-type: none;
-    overflow-y: hidden;
-    overflow-x: hidden; 
+ /* Police Primaire: Inter */
+ font-family: "Inter", sans-serif;
+ /* Couleur du Fond Principal (Blanc Cassé: #F9F8F5) */
+ background-color: #f9f8f5;
+ /* Couleur du Texte Principal (Noir Profond: #111111) */
+ color: #111111;
+ /* Hauteur contrainte de l'en-tête (4.5rem = 72px) */
+ --header-height: 4.5rem; 
+ 
+ height: 100%;
+ scroll-snap-type: none;
+ overflow-y: hidden;
+ overflow-x: hidden; 
 }
 
 /* =============== NAVIGATION =============== */
 header {
-    position: fixed;
-    width: 100%;
-    z-index: 100; 
-    background-color: #f9f8f5; 
-    height: var(--header-height);
+ position: fixed;
+ width: 100%;
+ z-index: 100; 
+ height: var(--header-height);
+ transition: background-color 0.3s;
+}
+
+/* Fond blanc pour les pages avec arrière-plan dynamique (Home/About) */
+.dynamic-background-page header {
+ background-color: #f9f8f5; /* Fond Blanc Cassé */
+}
+
+/* Fallback: Assurer que le header reste visible sur les pages d'exposition (non dynamiques) */
+.expo-page header { 
+ background-color: #f9f8f5;
 }
 
 nav {
-    display: flex;
-    justify-content: center;
-    align-items: center; 
-    gap: 2rem;
-    font-size: 0.9rem; 
-    /* Ajustement du padding vertical pour centrer dans la hauteur 4.5rem */
-    padding: 1.5rem 1rem; 
-    letter-spacing: 1px;
-    height: 100%;
+ display: flex;
+ justify-content: center;
+ align-items: center; 
+ gap: 2rem;
+ font-size: 0.9rem; 
+ padding: 1.5rem 1rem; 
+ letter-spacing: 1px;
+ height: 100%;
 }
 
 nav a {
-    text-decoration: none;
-    color: #111;
-    opacity: 0.6;
-    transition: opacity 0.3s;
-    font-weight: 400; 
+ text-decoration: none;
+ color: #111111; /* Fixé à noir pour le fond blanc du header */
+ opacity: 0.6;
+ transition: opacity 0.3s;
+ font-weight: 400; 
 }
 
 nav a:hover,
 nav a.active {
-    opacity: 1;
+ opacity: 1;
 }
 
 /* Styles du Logo */
 .logo {
-    font-family: 'Brittany', cursive; 
-    font-weight: 300; 
-    font-size: 1.0rem; 
+ font-family: 'Brittany', cursive; 
+ font-weight: 300; 
+ font-size: 1.0rem; 
 }
 
-/* =============== PAGE D'ACCUEIL / ABOUT (PAGES STATIQUES) =============== */
+/* =============== FOND PLEINE PAGE & CONTRASTE FIXE =============== */
+
+/* 1. Conteneur des images de fond */
+#slideshow-background {
+ position: fixed;
+ top: 0;
+ left: 0;
+ width: 100%;
+ height: 100%;
+ z-index: -1; 
+ overflow: hidden;
+ background-color: #f9f8f5; 
+}
+
+/* 🟢 FILTRE NOIR RENFORCÉ (40% d'opacité) */
+#slideshow-background::before {
+ content: '';
+ position: absolute;
+ top: 0;
+ left: 0;
+ width: 100%;
+ height: 100%;
+ background-color: rgba(0, 0, 0, 0.4); /* Opacité augmentée pour faciliter la lecture */
+ z-index: 0; 
+}
+
+#slideshow-background img {
+ position: absolute;
+ top: 0;
+ left: 0;
+ width: 100%;
+ height: 100%;
+ object-fit: cover; 
+ opacity: 0;
+ transition: opacity 1.5s ease-in-out;
+ z-index: -1; 
+}
+
+#slideshow-background img.active-bg {
+ opacity: 1;
+}
+
+/* 2. Contenu par dessus (HOME/ABOUT) */
 .home, .about {
-    /* Ajout du margin-top pour décaler le contenu SOUS le header */
-    margin-top: var(--header-height);
-    /* Réduire la hauteur à la hauteur restante de l'écran. */
-    height: calc(100% - var(--header-height)); 
-    
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    gap: 1rem;
-    width: 100vw;
+ margin-top: var(--header-height); 
+ height: calc(100% - var(--header-height)); 
+ 
+ display: flex;
+ flex-direction: column;
+ justify-content: center;
+ align-items: center;
+ text-align: center;
+ gap: 1rem;
+ width: 100vw;
+ z-index: 1; 
+ position: relative; 
+ 
+ /* 🟢 VALEURS FIXES CLAIRES */
+ --text-color: #f9f8f5; 
+ --text-color-subtle: #cccccc; /* Légèrement plus sombre que le titre principal */
+ 
+ /* 🟢 VARIABLES DU BOUTON (Glass Effect) */
+ --button-color: #f9f8f5; 
+ --button-bg: rgba(0, 0, 0, 0.4); 
+ --button-border: 1px solid rgba(249, 248, 245, 0.6); 
+ --button-hover-color: #111111; 
+ --button-hover-bg: rgba(249, 248, 245, 0.8); 
+ 
+ color: var(--text-color);
+ transition: color 0.5s;
 }
 
+/* 3. Styles des titres et textes */
+.main-title {
+ font-family: 'Brittany', cursive; 
+ font-size: 10rem; 
+ font-weight: 300; 
+ letter-spacing: 0rem; 
+ color: var(--text-color);
+ margin: 0;
+ transition: color 0.5s;
+}
+
+/* 🎯 STYLE POUR LE LOGO SVG */
+.main-logo-svg {
+ fill: var(--text-color); 
+ color: var(--text-color); 
+ 
+ /* Simuler la taille du H1 précédent */
+ width: 55vw; 
+ max-width: 600px;
+ height: auto; 
+ 
+ margin: 0;
+ transition: color 0.5s, fill 0.5s;
+}
+
+.subtitle {
+ font-size: 1.0rem; 
+ font-weight: 400; 
+ color: var(--text-color-subtle);
+ margin: 0;
+ transition: color 0.5s;
+}
+
+.home p, .about p {
+ color: var(--text-color-subtle);
+ transition: color 0.5s;
+}
+
+.home a:not(.enter-button), .about a:not(.enter-button) {
+ color: var(--text-color-subtle);
+ text-decoration: none;
+ transition: color 0.5s;
+}
+
+
+/* 4. Styles du bouton ENTER (Glass Effect) */
 .enter-button {
-    margin-top: 1.5rem;
-    padding: 0.5rem 1.2rem;
-    border: 1px solid #111;
-    text-decoration: none;
-    color: #111;
-    font-size: 0.9rem;
-    border-radius: 2rem;
-    transition: background 0.6s, color 0.6s;
+ margin-top: 1.5rem;
+ padding: 0.7rem 1.8rem; 
+ border: var(--button-border); 
+ text-decoration: none;
+ color: var(--button-color);
+ background: var(--button-bg); 
+ font-size: 0.95rem; 
+ border-radius: 2rem;
+ transition: all 0.4s ease-in-out;
+ 
+ /* 🟢 EFFET GLASS */
+ backdrop-filter: blur(5px); 
+ -webkit-backdrop-filter: blur(5px); 
 }
 
 .enter-button:hover {
-    background: #111;
-    color: #f9f8f5;
+ background: var(--button-hover-bg);
+ color: var(--button-hover-color);
+ border-color: var(--button-hover-bg); 
 }
 
 
 /* =============== EXPOSITION IMMERSIVE (NAVIGATION HORIZONTALE) =============== */
+
 .expo {
-    display: flex;
-    position: relative;
-    /* Utiliser fit-content pour que la largeur soit celle de ses enfants */
-    width: fit-content; 
-    
-    /* L'expo a besoin du margin-top pour se positionner sous le header. */
-    margin-top: var(--header-height);
-    /* L'expo doit occuper la hauteur restante. */
-    height: calc(100% - var(--header-height));
-    transition: transform 0.6s ease-in-out; 
+ display: flex;
+ position: relative;
+ width: fit-content; 
+ margin-top: var(--header-height);
+ height: calc(100% - var(--header-height));
+ transition: transform 0.6s ease-in-out; 
 }
 
 /* Salle & Mur */
 .salle {
-    flex-shrink: 0; 
-    width: 100vw;
-    height: 100%; 
-    
-    /* Padding-top pour l'espacement du contenu sous le haut de la salle (premier mur) */
-    padding-top: 1.5rem; 
-    padding-left: 0; 
-    padding-right: 0; 
-    padding-bottom: 0;
-    position: relative; 
-    scroll-snap-type: y mandatory;
-    overflow-y: scroll; 
-    overflow-x: hidden;
+ flex-shrink: 0; 
+ /* 🎯 CORRECTION CLÉ 1 : Maintenir la réduction de largeur pour le décalage de la barre de scroll */
+ width: calc(100vw - 15px);
+ /* 🎯 CORRECTION CLÉ 2 : RETIRER le fond noir pour ne pas affecter les autres murs */
+ /* background-color: #111111; <- Supprimé */
+ height: 100%; 
+ padding-top: 1.5rem; 
+ padding-left: 0; 
+ padding-right: 0; 
+ padding-bottom: 0;
+ position: relative; 
+ scroll-snap-type: y mandatory;
+ overflow-y: scroll; 
+ overflow-x: hidden;
 }
 
 /* Styles pour la Salle 2 (Vide) */
 .salle-future {
-    scroll-snap-type: none;
-    overflow-y: hidden; 
-    display: flex;
-    flex-direction: column; 
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    padding-top: 0; 
+ scroll-snap-type: none;
+ overflow-y: hidden; 
+ display: flex;
+ flex-direction: column; 
+ justify-content: center;
+ align-items: center;
+ text-align: center;
+ padding-top: 0; 
 }
 
 .content-placeholder {
-    padding: 2rem;
-    color: #555;
-    font-size: 1.1rem;
-    max-width: 60%;
+ padding: 2rem;
+ color: #555;
+ font-size: 1.1rem;
+ max-width: 60%;
 }
 
 .content-placeholder h2 {
-    font-family: 'Brittany', cursive; 
-    font-size: 2.5rem;
-    margin-bottom: 1rem;
-    color: #111;
+ font-family: 'Brittany', cursive; 
+ font-size: 2.5rem;
+ margin-bottom: 1rem;
+ color: #111;
 }
 
 /* Mur (Page Verticale) */
 .mur {
-    /* Application du padding horizontal et width 100% sur le mur */
-    padding-top: 0; 
-    padding-left: 5vw; 
-    padding-right: 5vw; 
-    
-    height: 100vh; 
-    width: 100%; 
-    margin: 0 auto;
-    
-    scroll-snap-align: start;
-    
-    /* Configuration Grid */
-    display: grid;
-    grid-template-columns: repeat(12, 1fr); 
-    grid-template-rows: repeat(16, minmax(0, 1fr)); 
-    
-    grid-auto-flow: dense; 
-    
-    /* Aération (grid-gap) 3vw/3vh */
-    grid-gap: 3vw 3vh; 
-    
-    align-content: start; 
-    justify-content: center; 
-    
-    overflow: hidden; 
+ /* 🎯 CORRECTION CLÉ 3 : Donner un fond blanc par défaut à TOUS les murs (sauf le footer) */
+ background-color: #f9f8f5;
+ padding-top: 0; 
+ padding-left: 5vw; 
+ padding-right: 5vw;
+ 
+ height: 100vh; 
+ width: 100%; 
+ margin: 0 auto;
+ 
+ scroll-snap-align: start;
+ 
+ /* Configuration Grid */
+ display: grid;
+ grid-template-columns: repeat(12, 1fr); 
+ grid-template-rows: repeat(16, minmax(0, 1fr)); 
+ 
+ grid-auto-flow: dense; 
+ 
+ /* Aération (grid-gap) 3vw/3vh */
+ grid-gap: 3vw 3vh; 
+ 
+ align-content: start; 
+ justify-content: center; 
+ 
+ overflow: hidden; 
 }
 
 /* Photo : styles de base */
 .mur img {
-    object-fit: contain; 
-    border-radius: 0px;
-    transition: transform 0.3s ease-out;
-    z-index: 1;
-    max-height: 100%; 
-    width: auto !important; 
+ object-fit: contain; 
+ border-radius: 0px;
+ transition: transform 0.3s ease-out;
+ z-index: 1;
+ max-height: 100%; 
+ width: auto !important; 
 }
 
 .mur img:hover {
-    transform: scale(1.02); 
+ transform: scale(1.02); 
 }
 
 /* Style de base pour les blocs de texte/légendes */
 .legende {
-    font-family: "Inter", sans-serif;
-    font-size: 0.8rem; 
-    line-height: 1.3;
-    color: #555555; 
-    margin: 0;
-    padding: 0;
-    z-index: 2;
+ font-family: "Inter", sans-serif;
+ font-size: 0.8rem; 
+ line-height: 1.3;
+ color: #555555; 
+ margin: 0;
+ padding: 0;
+ z-index: 2;
 }
 
 
 /* Flèches gauche/droite */
 .fleches {
-    position: fixed;
-    top: 50%;
-    width: 100%;
-    display: flex;
-    justify-content: space-between;
-    padding: 0 2rem;
-    transform: translateY(-50%);
-    pointer-events: none;
-    z-index: 15;
+ position: fixed;
+ top: 50%;
+ width: 100%;
+ display: flex;
+ justify-content: space-between;
+ padding: 0 2rem;
+ transform: translateY(-50%);
+ pointer-events: none;
+ z-index: 15;
 }
 
 .fleches button {
-    background: none;
-    border: none;
-    font-size: 2rem;
-    /* Couleur par défaut (sombre) */
-    color: #111; 
-    opacity: 0.4;
-    cursor: pointer;
-    pointer-events: all;
-    transition: opacity 0.3s, color 0.3s; /* Ajout de transition pour la couleur */
+ background: none;
+ border: none;
+ font-size: 2rem;
+ color: #111; 
+ opacity: 0.4;
+ cursor: pointer;
+ pointer-events: all;
+ transition: opacity 0.3s, color 0.3s;
 }
 
 .fleches button:hover {
-    opacity: 1;
+ opacity: 1;
 }
 
-/* NOUVEAU: Classes pour la couleur des flèches */
+/* Classes pour la couleur des flèches */
 .fleches-fonce button {
-    color: #f9f8f5; /* Flèches blanches sur fond foncé */
-    opacity: 0.6;
+ color: #f9f8f5; 
+ opacity: 0.6;
 }
 
 .fleches-fonce button:hover {
-    opacity: 1;
+ opacity: 1;
 }
 
 .fleches-clair button {
-    color: #111; /* Flèches noires sur fond clair */
-    opacity: 0.4;
+ color: #111; 
+ opacity: 0.4;
 }
 
 .fleches-clair button:hover {
-    opacity: 1;
+ opacity: 1;
 }
 
-/* AJOUT : Styles pour le footer (Mur 6) */
+/* Styles pour le footer (Mur 6) */
 .footer-mur {
-    background-color: #111111; 
-    color: #f9f8f5;
-    
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-    
-    padding: 0; 
-    margin: 0;
-    width: 100vw; 
+ background-color: #111111; /* 🎯 C'est ici que le fond noir est appliqué */
+ color: #f9f8f5;
+ 
+ display: flex;
+ justify-content: center;
+ align-items: center;
+ flex-direction: column;
+ 
+ padding: 0; 
+ margin: 0;
+ /* CORRECTION CLÉ 4 : Le footer doit avoir 100vw pour couvrir l'espace du décalage */
+ width: 100vw; 
 }
 
 .footer-content {
-    display: flex;
-    flex-direction: column;
-    text-align: center;
-    gap: 0.8rem;
-    font-size: 0.9rem;
-    margin: 0 auto; 
+ display: flex;
+ flex-direction: column;
+ text-align: center;
+ gap: 0.8rem;
+ font-size: 0.9rem;
+ margin: 0 auto; 
 }
 
 .footer-content p {
-    padding: 0.2rem 0;
+ padding: 0.2rem 0;
 }
 
 .footer-content a {
-    color: #f9f8f5;
-    text-decoration: none;
-    transition: color 0.3s;
+ color: #f9f8f5;
+ text-decoration: none;
+ transition: color 0.3s;
 }
 
 .footer-content a:hover {
-    color: #999999; 
+ color: #999999; 
+}
+
+
+/* NOUVEAU BLOC : Styles spécifiques pour la page À Propos (fond blanc, texte noir) */
+.about {
+ /* L'utilisation de !important est nécessaire ici pour écraser les variables
+    --text-color et --text-color-subtle définies dans le sélecteur général
+    .home, .about, car cette page n'utilise pas le filtre noir.
+ */
+ --text-color: #111111 !important; /* Noir pour les titres */
+ --text-color-subtle: #555555 !important; /* Gris foncé pour le corps */
+ 
+ color: var(--text-color); /* Applique le noir */
+ 
+ /* Le bouton "Entrer dans l'exposition" n'est pas utilisé ici,
+    mais si vous aviez un bouton, il serait noir sur fond blanc.
+ */
+}
+
+/* S'assurer que le lien Instagram est noir */
+.about a {
+ color: #111111 !important;
+}
+
+.about a:hover {
+ color: #555555 !important;
+}
+
+/* ========================================================= */
+/* 🎯 NOUVEAU BLOC : STYLISATION DE LA BARRE DE DÉFILEMENT (SCROLLBAR) */
+/* ========================================================= */
+
+/* 1. Largeur de la barre de défilement */
+.salle::-webkit-scrollbar {
+ width: 6px; 
+}
+
+/* 2. Style de la "poignée" (le thumb) */
+.salle::-webkit-scrollbar-thumb {
+ background-color: #111111; /* Couleur noire */
+ border-radius: 10px; /* Bords arrondis */
+}
+
+/* 3. Style du "rail" (l'arrière-plan de la barre) - FIXÉ À TRANSPARENT */
+.salle::-webkit-scrollbar-track {
+ background-color: transparent; /* Assurer que le rail est transparent */
+ border-radius: 10px;
+}
+
+/* Optionnel : Pour la rendre légèrement moins intrusive lorsqu'elle est inactive */
+.salle::-webkit-scrollbar-thumb:hover {
+ background-color: #555555;
 }

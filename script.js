@@ -1,25 +1,81 @@
+// =========================================================
+// GESTION DU FOND PLEINE PAGE (Diaporama)
+// (Pour index.html et about.html)
+// =========================================================
+
+const bgPage = document.querySelector(".dynamic-background-page");
+
+if (bgPage) {
+    const images = document.querySelectorAll('#slideshow-background img');
+    let currentImageIndex = 0;
+
+    /**
+     * Fonction de défilement (slideshow) pour la page d'accueil
+     */
+    function startSlideshow() {
+        // Ne lance le slideshow que s'il y a plus d'une image
+        if (images.length <= 1) return; 
+
+        setInterval(() => {
+            // 1. Désactiver l'image actuelle
+            images[currentImageIndex].classList.remove('active-bg');
+
+            // 2. Calculer l'index de la prochaine image
+            currentImageIndex = (currentImageIndex + 1) % images.length;
+            const nextImage = images[currentImageIndex];
+
+            // 3. Activer la nouvelle image
+            nextImage.classList.add('active-bg');
+            
+        }, 5000); // Défilement toutes les 5 secondes
+    }
+
+    // Initialisation du diaporama au chargement de la page
+    document.addEventListener('DOMContentLoaded', () => {
+        if (images.length > 0) {
+            // S'assurer que la première image est active
+            images[0].classList.add('active-bg'); 
+        }
+        
+        // Démarrer le défilement si nécessaire
+        if (images.length > 1) {
+            startSlideshow();
+        }
+    });
+}
+
+
+// =========================================================
+// GESTION DE L'EXPOSITION IMMERSIVE (NAVIGATION HORIZONTALE/VERTICALE)
+// (Pour 2024.html et 2025.html)
+// =========================================================
+
 const expoContainer = document.querySelector(".expo"); 
 const flecheG = document.getElementById("gauche");
 const flecheD = document.getElementById("droite");
-const flechesContainer = document.querySelector(".fleches"); // Nouveau: Conteneur des flèches
+const flechesContainer = document.querySelector(".fleches");
 
 let indexSalle = 0; 
 let totalPages; 
 let isScrolling = false; 
 
-// =========================================================
-// NOUVEAU: Fonction pour déterminer la couleur de fond et ajuster les flèches
-// =========================================================
+// Fonction pour déterminer la couleur de fond et ajuster les flèches
 function updateFlecheColor() {
-    const activeSalle = document.querySelectorAll(".salle")[indexSalle];
+    // Vérifie si l'on est bien sur une page d'exposition
+    if (!expoContainer || !flechesContainer) return; 
+    
+    const allSalles = document.querySelectorAll(".salle");
+    if (allSalles.length === 0) return;
+
+    const activeSalle = allSalles[indexSalle];
     let isFonce = false;
 
     if (activeSalle) {
         if (activeSalle.classList.contains('salle-future')) {
-            // Si c'est la salle future (blanche), les flèches sont sombres
+            // Salle future (blanche)
             isFonce = false; 
         } else {
-            // Pour la salle d'exposition (Salle 1), vérifie le mur actuellement visible
+            // Pour la salle d'exposition (Salle 1)
             const murs = activeSalle.querySelectorAll(".mur");
             const murHeight = window.innerHeight;
             const currentScroll = activeSalle.scrollTop;
@@ -27,7 +83,6 @@ function updateFlecheColor() {
             // Détermine quel mur est majoritairement visible
             let visibleMurIndex = Math.round(currentScroll / murHeight);
             
-            // Assure que l'index ne dépasse pas le nombre de murs
             if (visibleMurIndex >= murs.length) {
                 visibleMurIndex = murs.length - 1;
             }
@@ -44,6 +99,7 @@ function updateFlecheColor() {
         }
     }
 
+    // Applique la classe appropriée pour la couleur des flèches
     if (isFonce) {
         flechesContainer.classList.add("fleches-fonce");
         flechesContainer.classList.remove("fleches-clair");
@@ -54,15 +110,12 @@ function updateFlecheColor() {
 }
 
 
-// =========================================================
 // 1. GESTION HORIZONTALE (Salles - Par flèches)
-// =========================================================
-
 function deplacerSalle() {
     const translationValue = -indexSalle * 100; 
     expoContainer.style.transform = `translateX(${translationValue}vw)`;
     
-    // NOUVEAU: Mettre à jour la couleur des flèches après le déplacement horizontal
+    // Mettre à jour la couleur des flèches après le déplacement horizontal
     updateFlecheColor();
 }
 
@@ -83,6 +136,9 @@ flecheG?.addEventListener("click", () => {
 
 // NAVIGATION AU CLAVIER
 document.addEventListener("keydown", (e) => {
+    // S'assurer que les flèches existent avant d'essayer de les utiliser
+    if (!flecheD || !flecheG) return; 
+
     if (e.key === "ArrowRight") {
         e.preventDefault(); 
         flecheD.click();
@@ -93,15 +149,16 @@ document.addEventListener("keydown", (e) => {
     }
 });
 
-// =========================================================
 // 2. GESTION VERTICALE PAR SEUIL (Murs - Par molette)
-// =========================================================
-
 function handleVerticalScroll(e) {
-    if (Math.abs(e.deltaX) > Math.abs(e.deltaY) || indexSalle !== 0) {
+    if (!expoContainer) return; // Ne pas exécuter si ce n'est pas la page d'exposition
+
+    // Annule le défilement si le mouvement est majoritairement horizontal
+    if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
         return; 
     }
     
+    // Empêche les défilements multiples en succession rapide
     if (isScrolling) {
         e.preventDefault();
         return;
@@ -114,9 +171,11 @@ function handleVerticalScroll(e) {
         return; 
     }
     
-    const activeSalle = document.querySelectorAll(".salle")[indexSalle];
+    const allSalles = document.querySelectorAll(".salle");
+    const activeSalle = allSalles[indexSalle];
     
-    if (!activeSalle) {
+    // La salle active n'est pas censée être scrollable (comme salle-future)
+    if (!activeSalle || activeSalle.style.overflowY === 'hidden') {
         return;
     }
 
@@ -150,8 +209,8 @@ function handleVerticalScroll(e) {
         behavior: 'smooth'
     });
 
-    // NOUVEAU: Mettre à jour la couleur des flèches après le défilement vertical
-    // On met un délai pour s'assurer que le défilement est terminé et que le mur est visible
+    // Mettre à jour la couleur des flèches après le défilement vertical
+    // Le délai est ajusté pour le 'smooth' scroll
     setTimeout(() => {
         isScrolling = false;
         updateFlecheColor(); 
@@ -161,24 +220,24 @@ function handleVerticalScroll(e) {
 window.addEventListener("wheel", handleVerticalScroll, { passive: false });
 
 
-// =========================================================
-// 3. INITIALISATION
-// =========================================================
-
+// 3. INITIALISATION de l'exposition
 document.addEventListener('DOMContentLoaded', () => {
-    const pages = document.querySelectorAll(".salle"); 
-    totalPages = pages.length;
-    
-    deplacerSalle(); // Initialise la position et appelle updateFlecheColor
-    updateFlecheColor(); // S'assure de l'appliquer au chargement initial
-});
-
-// NOUVEAU: Écouteur pour le défilement vertical direct de la salle pour gérer les cas non-molette ou redimensionnement
-// Sans cela, si l'utilisateur fait glisser la barre de défilement manuellement, la couleur ne s'adapte pas.
-document.querySelector(".salle").addEventListener('scroll', () => {
-    // Si nous ne sommes pas déjà en train de défiler de manière contrôlée, mettez à jour.
-    // Et seulement si c'est la salle d'exposition (indexSalle === 0)
-    if (!isScrolling && indexSalle === 0) { 
-        updateFlecheColor();
+    // Initialisation uniquement si l'exposition existe
+    if (expoContainer) {
+        const pages = document.querySelectorAll(".salle"); 
+        totalPages = pages.length;
+        
+        deplacerSalle(); // Initialise la position et appelle updateFlecheColor
+        
+        // Écouteur pour le défilement vertical direct de la salle (pour les scrollbars et les cas non gérés par handleVerticalScroll)
+        const primarySalle = document.querySelector(".salle");
+        if (primarySalle) {
+            primarySalle.addEventListener('scroll', () => {
+                // N'agit que si le défilement n'est pas en cours (pour éviter les saccades)
+                if (!isScrolling) { 
+                    updateFlecheColor();
+                }
+            });
+        }
     }
 });

@@ -14,7 +14,7 @@
             <a href="2024.html" class="active">2024</a>
             <a href="2025.html">2025</a>
             <a href="about.html">à propos</a>
-        </nav>
+            </nav>
     </header>
 
     <main class="expo">
@@ -22,12 +22,12 @@
         <section class="salle">
             
             <div class="mur">
-                <p class="legende" style="grid-column: 1 / span 4; grid-row: 2 / span 1; font-weight: 600;">
-                    MUR 1 : PLEINE PAGE
-                </p> 
-                <img src="images/photo1.jpg" alt="Photo Pleine Page" style="grid-column: 3 / span 8; grid-row: 3 / span 12; width: 60vw;"> 
-                <p class="legende" style="grid-column: 3 / span 8; grid-row: 15 / span 1; font-style: italic; text-align: center;">
-                    "L'envol" - Taille Maximale
+                <img src="images/photo1.jpg" alt="Photo Pleine Page" style="grid-column: 2 / span 9; grid-row: 2 / span 12; width: 50vw;"> 
+                <p class="main-title" style="grid-column: 10 / span 8; grid-row: 5 / span 1; font-style: italic; text-align: center;">
+                    L'envol
+                    <p class="legende" style="grid-column: 11 / span 8; grid-row: 10 / span 1; font-style: italic; text-align: center;">
+                        "Partir, c'est mourir aujourd'hui pour renaitre demain."
+                    </p>
                 </p>
             </div>
             
@@ -35,8 +35,8 @@
                 <p class="legende" style="grid-column: 1 / span 4; grid-row: 2 / span 1; font-weight: 600;">
                     MUR 2 : GRAND + MOYEN + PETIT
                 </p> 
-                <img src="images/photo2.jpg" alt="Photo Grande (G)" style="grid-column: 1 / span 6; grid-row: 3 / span 12; width: 45vw;"> 
-                <img src="images/photo3.jpg" alt="Photo Moyenne (HD)" style="grid-column: 8 / span 4; grid-row: 3 / span 6; width: 30vw;">
+                <img src="images/photo2.jpg" alt="Photo Grande (G)" style="grid-column: 1 / span 6; grid-row: 1 / span 12; width: 45vw;"> 
+                <img src="images/photo3.jpg" alt="Photo Moyenne (HD)" style="grid-column: 8 / span 4; grid-row: 1 / span 6; width: 30vw;">
                 <img src="images/photo4.jpg" alt="Photo Petite (BD)" style="grid-column: 9 / span 3; grid-row: 10 / span 5; width: 25vw;">
                 <p class="legende" style="grid-column: 8 / span 4; grid-row: 15 / span 1;">
                     Composition asymétrique verticale
@@ -80,13 +80,16 @@
                 <p class="legende" style="grid-column: 1 / span 11; grid-row: 15 / span 1; text-align: center;">
                     Mur de contact (Deux rangées de trois)
                 </p>
+                <button id="next-salle-button" class="enter-button" style="grid-column: 5 / span 4; grid-row: 16 / span 1; align-self: end; justify-self: center;">
+                    Salle Suivante →
+                </button>
             </div>
 
             <div class="mur footer-mur">
                 <div class="footer-content"> 
                     <p>Feruzl</p>
                     <p>© 2024 Tous droits réservés.</p>
-                    <p>Contact: <a href="mailto:votre.email@exemple.com">ferielboudekhani@gmail.com</a></p>
+                    <p>Contact: <a href="mailto:ferielboudekhani@gmail.com">ferielboudekhani@gmail.com</a></p>
                 </div>
             </div>
             
@@ -103,6 +106,11 @@
     <div class="fleches">
         <button id="gauche">←</button>
         <button id="droite">→</button>
+    </div>
+
+    <div id="mur-indicator">
+        <span id="mur-current-count">1/5</span>
+        <button id="fleche-bas">↓</button>
     </div>
 
     <script src="script.js"></script>
